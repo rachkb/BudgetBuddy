@@ -31,7 +31,9 @@ export default {
     this.user = JSON.parse(localStorage.getItem("user")) || null;
     if (this.user) {
       try {
-        const res = await fetch("http://localhost:8000/expenses/list.php");
+        const res = await fetch(
+          "http://localhost:8000/backend/expenses/list.php",
+        );
         const data = await res.json();
         this.expenses = data.expenses || [];
       } catch (err) {

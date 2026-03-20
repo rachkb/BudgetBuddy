@@ -22,9 +22,7 @@
     >
       Login
     </button>
-
     <p v-if="error" class="text-red-500 mt-2">{{ error }}</p>
-
     <!-- Sign Up link/button -->
     <p class="mt-4 text-sm text-gray-600">
       Don't have an account?
@@ -34,25 +32,25 @@
     </p>
   </form>
 </template>
-
 <script>
 export default {
   data() {
-    return {
-      email: "",
-      password: "",
-      error: "",
-    };
+    return { email: "", password: "", error: "" };
   },
   methods: {
     async login() {
       try {
-        const res = await fetch("http://localhost:8000/auth/login.php", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: this.email, password: this.password }),
-        });
-
+        const res = await fetch(
+          "http://localhost:8000/backend/auth/login.php",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: this.email,
+              password: this.password,
+            }),
+          },
+        );
         const data = await res.json();
         if (data.success) {
           localStorage.setItem("user", JSON.stringify(data.user));

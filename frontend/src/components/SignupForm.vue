@@ -52,15 +52,18 @@ export default {
   methods: {
     async signup() {
       try {
-        const res = await fetch("http://localhost:8000/auth/signup.php", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: this.name,
-            email: this.email,
-            password: this.password,
-          }),
-        });
+        const res = await fetch(
+          "http://localhost:8000/backend/auth/signup.php",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: this.name,
+              email: this.email,
+              password: this.password,
+            }),
+          },
+        );
         const data = await res.json();
         if (data.success) {
           this.$router.push("/login");
