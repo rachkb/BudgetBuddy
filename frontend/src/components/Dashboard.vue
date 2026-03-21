@@ -1,5 +1,5 @@
 <template>
-  <div class="app-layout">
+  <MainLayout>
     <div class="dashboard-container">
 
       <div class="dashboard-header">
@@ -20,7 +20,7 @@
           </div>
           <div class="stat-content">
             <h3>Total Balance</h3>
-            <p class="stat-amount">${{ totalBalance.toLocaleString() }}</p>
+            <p class="stat-amount">₱{{ totalBalance.toLocaleString() }}</p>
           </div>
         </div>
 
@@ -30,7 +30,7 @@
           </div>
           <div class="stat-content">
             <h3>Income</h3>
-            <p class="stat-amount income">${{ totalIncome.toLocaleString() }}</p>
+            <p class="stat-amount income">₱{{ totalIncome.toLocaleString() }}</p>
           </div>
         </div>
 
@@ -40,7 +40,7 @@
           </div>
           <div class="stat-content">
             <h3>Expenses</h3>
-            <p class="stat-amount expense">${{ totalExpenses.toLocaleString() }}</p>
+            <p class="stat-amount expense">₱{{ totalExpenses.toLocaleString() }}</p>
           </div>
         </div>
 
@@ -50,7 +50,7 @@
           </div>
           <div class="stat-content">
             <h3>Savings</h3>
-            <p class="stat-amount savings">${{ savings.toLocaleString() }}</p>
+            <p class="stat-amount savings">₱{{ savings.toLocaleString() }}</p>
           </div>
         </div>
       </div>
@@ -101,7 +101,7 @@
               <p>{{ transaction.category }} • {{ transaction.date }}</p>
             </div>
             <div class="transaction-amount" :class="transaction.type">
-              {{ transaction.type === 'income' ? '+' : '-' }}${{ transaction.amount }}
+              {{ transaction.type === 'income' ? '+' : '-' }}₱{{ transaction.amount }}
             </div>
           </div>
           <div v-else class="empty-state">
@@ -112,12 +112,13 @@
         </div>
       </div>
     </div>
-  </div>
+  </MainLayout>
 </template>
 
 <script setup>
 import { onMounted } from 'vue';
 import { useDashboard } from '@/composables/useDashboard';
+import MainLayout from './MainLayout.vue';
 
 const {spendingChart, budgetChart, user, totalBalance, totalIncome, totalExpenses, savings, hasTransactionData, hasBudgetData, recentTransactions, logout, getTransactionIcon, loadDashboardData
 } = useDashboard();
