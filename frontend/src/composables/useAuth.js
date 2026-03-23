@@ -42,7 +42,6 @@ export function useAuth() {
 
     try {
       const res = await fetch("/backend/auth/login.php", {
->>>>>>> origin/tailwind-fix
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -78,7 +77,6 @@ export function useAuth() {
 
     try {
       const res = await fetch("/backend/auth/signup.php", {
->>>>>>> origin/tailwind-fix
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
