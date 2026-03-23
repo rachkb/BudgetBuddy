@@ -41,7 +41,7 @@ export function useAuth() {
     isLoading.value = true;
 
     try {
-      const res = await fetch("http://localhost:8000/backend/auth/login.php", {
+      const res = await fetch("/backend/auth/login.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -76,7 +76,7 @@ export function useAuth() {
     isLoading.value = true;
 
     try {
-      const res = await fetch("http://localhost:8000/backend/auth/signup.php", {
+      const res = await fetch("/backend/auth/signup.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
