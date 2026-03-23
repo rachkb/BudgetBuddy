@@ -6,7 +6,7 @@ header("Access-Control-Allow-Headers: Content-Type");
 
 session_start();
 header('Content-Type: application/json');
-require "../includes/db.php";
+require __DIR__ . "/../includes/db.php";
 
 $data = json_decode(file_get_contents('php://input'), true);
 $email = $data['email'] ?? '';

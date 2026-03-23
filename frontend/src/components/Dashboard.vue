@@ -86,7 +86,7 @@
       <div class="transactions-section">
         <div class="section-header">
           <h2>Recent Transactions</h2>
-          <button class="add-btn">
+          <button class="add-btn" @click="openTransactionModal">
             <i class="bi bi-plus-circle"></i>
             Add Transaction
           </button>
@@ -112,19 +112,120 @@
         </div>
       </div>
     </div>
+
+    <!-- Add Transaction Modal -->
+    <AddTransactionModal
+      :show="showTransactionModal"
+      :transaction-form="transactionForm"
+      :category-form="categoryForm"
+      :categories="categories"
+      :is-loading="isLoading"
+      :error="error"
+      :show-category-modal="showCategoryModal"
+      @close="closeTransactionModal"
+      @submit="handleAddTransaction"
+      @open-category-modal="openCategoryModal"
+      @close-category-modal="closeCategoryModal"
+      @create-category="handleCreateCategory"
+      @load-categories="loadCategories"
+    />
   </MainLayout>
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, computed } from 'vue';
 import { useDashboard } from '@/composables/useDashboard';
+import { useTransactions } from '@/composables/useTransactions';
 import MainLayout from './MainLayout.vue';
+import AddTransactionModal from './AddTransactionModal.vue';
 
-const {spendingChart, budgetChart, user, totalBalance, totalIncome, totalExpenses, savings, hasTransactionData, hasBudgetData, recentTransactions, logout, getTransactionIcon, loadDashboardData
+// Dashboard composable for charts and user info
+const {
+  spendingChart,
+  budgetChart,
+  user,
+  hasBudgetData,
+  logout,
+  initCharts
 } = useDashboard();
 
-onMounted(() => {
+// Transaction composable for real data
+const {
+  transactions,
+  categories,
+  isLoading,
+  error,
+  transactionForm,
+  categoryForm,
+  showTransactionModal,
+  showCategoryModal,
+  totalIncome,
+  totalExpenses,
+  totalBalance,
+  recentTransactions,
+  hasTransactionData,
+  loadTransactions,
+  loadCategories,
+  addTransaction,
+  openTransactionModal: openModal,
+  openCategoryModal: openCategory,
+  getTransactionIcon,
+  formatDate
+} = useTransactions();
+
+// Calculate savings as 20% of income
+const savings = computed(() => totalIncome.value * 0.2);
+
+// Methods
+const openTransactionModal = () => {
+  openModal();
+};
+
+const closeTransactionModal = () => {
+  showTransactionModal.value = false;
+  error.value = '';
+};
+
+const openCategoryModal = () => {
+  openCategory();
+};
+
+const closeCategoryModal = () => {
+  showCategoryModal.value = false;
+  error.value = '';
+};
+
+const handleAddTransaction = async () => {
+  const success = await addTransaction();
+  if (success) {
+    closeTransactionModal();
+    // Reinitialize charts with new data
+    setTimeout(() => {
+      initCharts();
+    }, 100);
+  }
+};
+
+const handleCreateCategory = async () => {
+  const success = await addCategory();
+  if (success) {
+    closeCategoryModal();
+  }
+};
+
+// Load data on mount
+onMounted(async () => {
   console.log('Dashboard mounted, loading data...');
-  loadDashboardData();
+  
+  // Load transactions and categories
+  await Promise.all([
+    loadTransactions(),
+    loadCategories()
+  ]);
+  
+  // Initialize charts after data is loaded
+  setTimeout(() => {
+    initCharts();
+  }, 100);
 });
 </script>

@@ -57,7 +57,7 @@ export function useCategories() {
     }
     
     try {
-      const res = await fetch('http://localhost:8000/backend/categories/list.php', {
+      const res = await fetch('http://localhost:8000/categories/list', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: user.id })
@@ -84,7 +84,7 @@ export function useCategories() {
     
     try {
       const user = getUser();
-      const res = await fetch('http://localhost:8000/backend/categories/add.php', {
+      const res = await fetch('http://localhost:8000/categories/add', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...categoryForm.value, user_id: user.id })
@@ -112,7 +112,7 @@ export function useCategories() {
     
     try {
       const user = getUser();
-      const res = await fetch('http://localhost:8000/backend/categories/update.php', {
+      const res = await fetch('http://localhost:8000/categories/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -151,7 +151,7 @@ export function useCategories() {
     
     try {
       const user = getUser();
-      const res = await fetch('http://localhost:8000/backend/categories/delete.php', {
+      const res = await fetch('http://localhost:8000/categories/delete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: categoryId, user_id: user.id })
