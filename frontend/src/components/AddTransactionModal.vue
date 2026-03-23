@@ -1,46 +1,46 @@
 <template>
-  <div v-if="show" class="modal-overlay" @click="closeModal">
-    <div class="modal-content" @click.stop>
-      <div class="modal-header">
-        <h2>Add Transaction</h2>
-        <button class="close-btn" @click="closeModal">
-          <i class="bi bi-x-lg"></i>
+  <div v-if="show" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @click="closeModal">
+    <div class="bg-white rounded-xl max-w-lg w-full mx-4" @click.stop>
+      <div class="flex justify-between items-center p-6 border-b border-gray-200">
+        <h2 class="text-xl font-semibold text-gray-900">Add Transaction</h2>
+        <button @click="closeModal" class="p-2 hover:bg-gray-100 rounded-md transition-colors">
+          <i class="bi bi-x-lg text-gray-500"></i>
         </button>
       </div>
 
-      <div class="modal-body">
+      <div class="p-6">
         <!-- Transaction Type -->
-        <div class="form-group">
-          <label class="form-label">Transaction Type</label>
-          <div class="type-selector">
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Transaction Type</label>
+          <div class="flex gap-2">
             <button 
-              :class="['type-btn', { active: transactionForm.type === 'expense' }]"
+              :class="['flex-1 py-3 px-4 border-2 rounded-md transition-colors', transactionForm.type === 'expense' ? 'border-purple-500 bg-purple-50 text-purple-700' : 'border-gray-300 text-gray-700 hover:border-gray-400']"
               @click="transactionForm.type = 'expense'"
             >
-              <i class="bi bi-arrow-down-circle"></i>
+              <i class="bi bi-arrow-down-circle mr-2"></i>
               Expense
             </button>
             <button 
-              :class="['type-btn', { active: transactionForm.type === 'income' }]"
+              :class="['flex-1 py-3 px-4 border-2 rounded-md transition-colors', transactionForm.type === 'income' ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-300 text-gray-700 hover:border-gray-400']"
               @click="transactionForm.type = 'income'"
             >
-              <i class="bi bi-arrow-up-circle"></i>
+              <i class="bi bi-arrow-up-circle mr-2"></i>
               Income
             </button>
           </div>
         </div>
 
         <!-- Amount -->
-        <div class="form-group">
-          <label class="form-label">Amount *</label>
-          <div class="input-group">
-            <span class="input-prefix">₱</span>
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Amount *</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">₱</span>
             <input
               v-model="transactionForm.amount"
               type="number"
               step="0.01"
               min="0.01"
-              class="form-input"
+              class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               placeholder="0.00"
               required
             />
@@ -48,22 +48,22 @@
         </div>
 
         <!-- Description -->
-        <div class="form-group">
-          <label class="form-label">Description *</label>
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Description *</label>
           <input
             v-model="transactionForm.description"
             type="text"
-            class="form-input"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             :placeholder="getTransactionPlaceholder()"
             required
           />
         </div>
 
         <!-- Category -->
-        <div class="form-group">
-          <label class="form-label">Category</label>
-          <div class="category-input-group">
-            <select v-model="transactionForm.category_id" class="form-select">
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+          <div class="flex gap-2">
+            <select v-model="transactionForm.category_id" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
               <option value="">Select category</option>
               <option 
                 v-for="category in categories" 
@@ -73,51 +73,54 @@
                 {{ category.name }}
               </option>
             </select>
-            <button type="button" class="add-category-btn" @click="openCategoryModal">
-              <i class="bi bi-plus-circle"></i>
+            <button 
+              @click="openCategoryModal" 
+              class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+            >
+              <i class="bi bi-plus-circle mr-1"></i>
               New
             </button>
           </div>
         </div>
 
         <!-- Date -->
-        <div class="form-group">
-          <label class="form-label">Date *</label>
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Date *</label>
           <input
             v-model="transactionForm.date"
             type="date"
-            class="form-input"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             required
           />
         </div>
 
         <!-- Notes -->
-        <div class="form-group">
-          <label class="form-label">Notes (Optional)</label>
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Notes (Optional)</label>
           <textarea
             v-model="transactionForm.notes"
-            class="form-textarea"
-            placeholder="Add any additional notes..."
             rows="3"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            placeholder="Add any additional notes..."
           ></textarea>
         </div>
 
         <!-- Recurring Transaction Options -->
-        <div class="form-group">
-          <label class="checkbox-label">
+        <div class="mb-6">
+          <label class="flex items-center">
             <input
               type="checkbox"
               v-model="transactionForm.is_recurring"
-              class="checkbox-input"
+              class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
             />
-            <span class="checkbox-text">Make this a recurring transaction</span>
+            <span class="ml-2 text-sm text-gray-700">Make this a recurring transaction</span>
           </label>
         </div>
 
-        <div v-if="transactionForm.is_recurring" class="recurring-options">
-          <div class="form-group">
-            <label class="form-label">Frequency</label>
-            <select v-model="transactionForm.recurring_frequency" class="form-select">
+        <div v-if="transactionForm.is_recurring" class="space-y-4 mb-6 p-4 bg-gray-50 rounded-md">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Frequency</label>
+            <select v-model="transactionForm.recurring_frequency" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
               <option value="daily">Daily</option>
               <option value="weekly">Weekly</option>
               <option value="biweekly">Bi-weekly</option>
@@ -127,105 +130,104 @@
             </select>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Repeat every</label>
-            <div class="interval-input">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Repeat every</label>
+            <div class="flex items-center gap-2">
               <input
                 v-model="transactionForm.recurring_interval"
                 type="number"
                 min="1"
-                class="form-input"
-                style="width: 80px;"
+                class="w-20 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               />
-              <span class="interval-text">
+              <span class="text-sm text-gray-600">
                 {{ getFrequencyLabel(transactionForm.recurring_frequency) }}
               </span>
             </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">End Date (Optional)</label>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">End Date (Optional)</label>
             <input
               v-model="transactionForm.recurring_end_date"
               type="date"
-              class="form-input"
-              :min="transactionForm.date"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
-            <small class="form-help">Leave blank to repeat indefinitely</small>
           </div>
         </div>
 
         <!-- Error Message -->
-        <div v-if="error" class="error-message">
-          <i class="bi bi-exclamation-circle"></i>
+        <div v-if="error" class="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md flex items-center">
+          <i class="bi bi-exclamation-circle mr-2"></i>
           {{ error }}
         </div>
       </div>
 
-      <div class="modal-footer">
-        <button class="btn-secondary" @click="closeModal">
+      <div class="flex justify-end gap-3 p-6 border-t border-gray-200">
+        <button 
+          @click="closeModal" 
+          class="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+        >
           Cancel
         </button>
         <button 
-          class="btn-primary" 
-          @click="handleSubmit"
+          @click="handleSubmit" 
           :disabled="isLoading"
+          class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
-          <i v-if="isLoading" class="bi bi-arrow-repeat spin"></i>
+          <span v-if="isLoading" class="inline-block animate-spin mr-2">⟳</span>
           {{ isLoading ? 'Adding...' : 'Add Transaction' }}
         </button>
       </div>
     </div>
-
-    <!-- Category Creation Modal -->
-    <div v-if="showCategoryModal" class="modal-overlay" @click="closeCategoryModal">
-      <div class="modal-content category-modal" @click.stop>
-        <div class="modal-header">
-          <h3>Create New Category</h3>
-          <button class="close-btn" @click="closeCategoryModal">
-            <i class="bi bi-x-lg"></i>
+  </div>   <!-- Category Creation Modal -->
+    <div v-if="showCategoryModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @click="closeCategoryModal">
+      <div class="bg-white rounded-xl max-w-lg w-full mx-4" @click.stop>
+        <div class="flex justify-between items-center p-6 border-b border-gray-200">
+          <h3 class="text-xl font-semibold text-gray-900">Create New Category</h3>
+          <button @click="closeCategoryModal" class="p-2 hover:bg-gray-100 rounded-md transition-colors">
+            <i class="bi bi-x-lg text-gray-500"></i>
           </button>
         </div>
 
-        <div class="modal-body">
-          <div class="form-group">
-            <label class="form-label">Category Type *</label>
-            <div class="type-selector">
+        <div class="p-6">
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Category Type *</label>
+            <div class="flex gap-2">
               <button 
-                :class="['type-btn', { active: categoryForm.type === 'expense' }]"
+                :class="['flex-1 py-3 px-4 border-2 rounded-md transition-colors', categoryForm.type === 'expense' ? 'border-purple-500 bg-purple-50 text-purple-700' : 'border-gray-300 text-gray-700 hover:border-gray-400']"
                 @click="categoryForm.type = 'expense'"
               >
-                <i class="bi bi-arrow-down-circle"></i>
+                <i class="bi bi-arrow-down-circle mr-2"></i>
                 Expense
               </button>
               <button 
-                :class="['type-btn', { active: categoryForm.type === 'income' }]"
+                :class="['flex-1 py-3 px-4 border-2 rounded-md transition-colors', categoryForm.type === 'income' ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-300 text-gray-700 hover:border-gray-400']"
                 @click="categoryForm.type = 'income'"
               >
-                <i class="bi bi-arrow-up-circle"></i>
+                <i class="bi bi-arrow-up-circle mr-2"></i>
                 Income
               </button>
             </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Category Name *</label>
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Category Name *</label>
             <input
               v-model="categoryForm.name"
               type="text"
-              class="form-input"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               :placeholder="getCategoryPlaceholder()"
               required
             />
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Icon</label>
-            <div class="icon-selector">
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Icon</label>
+            <div class="grid grid-cols-8 gap-2">
               <button
                 v-for="icon in getIconOptions()"
                 :key="icon"
-                :class="['icon-btn', { active: categoryForm.icon === icon }]"
+                :class="['p-3 border-2 rounded-md transition-colors', categoryForm.icon === icon ? 'border-purple-500 bg-purple-50 text-purple-700' : 'border-gray-300 text-gray-700 hover:border-gray-400']"
                 @click="categoryForm.icon = icon"
               >
                 <i :class="icon"></i>
@@ -233,26 +235,26 @@
             </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Color</label>
-            <div class="color-selector">
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Color</label>
+            <div class="flex gap-2">
               <button
                 v-for="color in colorOptions"
                 :key="color"
-                :class="['color-btn', { active: categoryForm.color === color, [`active-${color}`]: categoryForm.color === color }]"
+                :class="['w-8 h-8 rounded-full border-2 transition-colors', categoryForm.color === color ? 'border-gray-800' : 'border-gray-300']"
                 @click="categoryForm.color = color"
               >
-                <span :class="`color-dot ${color}`"></span>
+                <span :class="['w-full h-full rounded-full', getColorClass(color)]"></span>
               </button>
             </div>
           </div>
         </div>
 
-        <div class="modal-footer">
-          <button class="btn-secondary" @click="closeCategoryModal">
+        <div class="flex justify-end gap-3 p-6 border-t border-gray-200">
+          <button @click="closeCategoryModal" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors">
             Cancel
           </button>
-          <button class="btn-primary" @click="handleCreateCategory">
+          <button @click="handleCreateCategory" class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors">
             Create Category
           </button>
         </div>
@@ -374,6 +376,20 @@ const getIconOptions = () => {
   }
 };
 
+const getColorClass = (color) => {
+  const colorMap = {
+    'primary': 'bg-purple-500',
+    'secondary': 'bg-gray-500',
+    'success': 'bg-green-500',
+    'danger': 'bg-red-500',
+    'warning': 'bg-yellow-500',
+    'info': 'bg-blue-500',
+    'dark': 'bg-gray-800',
+    'light': 'bg-gray-200'
+  };
+  return colorMap[color] || 'bg-gray-500';
+};
+
 // Watch for modal close to reset error
 watch(() => props.show, (newShow) => {
   if (!newShow) {
@@ -399,389 +415,3 @@ watch(() => props.categoryForm.type, (newType) => {
   }
 });
 </script>
-
-<style scoped>
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background: white;
-  border-radius: 12px;
-  max-width: 500px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-}
-
-.category-modal {
-  max-width: 400px;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.modal-header h2 {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #1f2937;
-}
-
-.modal-header h3 {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #1f2937;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 1.25rem;
-  color: #6b7280;
-  cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 0.375rem;
-  transition: background-color 0.2s;
-}
-
-.close-btn:hover {
-  background-color: #f3f4f6;
-  color: #374151;
-}
-
-.modal-body {
-  padding: 1.5rem;
-}
-
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-.form-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: #374151;
-}
-
-.form-input,
-.form-select,
-.form-textarea {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  transition: border-color 0.2s;
-}
-
-.form-input:focus,
-.form-select:focus,
-.form-textarea:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.form-textarea {
-  resize: vertical;
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  cursor: pointer;
-  font-weight: 500;
-  color: #374151;
-}
-
-.checkbox-input {
-  width: 1.25rem;
-  height: 1.25rem;
-  accent-color: #3b82f6;
-}
-
-.checkbox-text {
-  user-select: none;
-}
-
-.recurring-options {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin-top: 0.5rem;
-}
-
-.interval-input {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.interval-text {
-  color: #6b7280;
-  font-size: 0.875rem;
-}
-
-.form-help {
-  display: block;
-  margin-top: 0.25rem;
-  color: #6b7280;
-  font-size: 0.75rem;
-}
-
-.type-selector {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.type-btn {
-  flex: 1;
-  padding: 0.75rem;
-  border: 2px solid #d1d5db;
-  background: white;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  font-weight: 500;
-}
-
-.type-btn:hover {
-  border-color: #9ca3af;
-}
-
-.type-btn.active {
-  border-color: #3b82f6;
-  background: #eff6ff;
-  color: #3b82f6;
-}
-
-.type-btn.expense.active {
-  border-color: #ef4444;
-  background: #fef2f2;
-  color: #ef4444;
-}
-
-.type-btn.income.active {
-  border-color: #10b981;
-  background: #ecfdf5;
-  color: #10b981;
-}
-
-.input-group {
-  display: flex;
-  align-items: center;
-}
-
-.input-prefix {
-  padding: 0.75rem;
-  background: #f9fafb;
-  border: 1px solid #d1d5db;
-  border-right: none;
-  border-radius: 0.5rem 0 0 0.5rem;
-  color: #6b7280;
-  font-weight: 500;
-}
-
-.input-group .form-input {
-  border-radius: 0 0.5rem 0.5rem 0;
-}
-
-.category-input-group {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.category-input-group .form-select {
-  flex: 1;
-}
-
-.add-category-btn {
-  padding: 0.75rem;
-  background: #f3f4f6;
-  border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  white-space: nowrap;
-}
-
-.add-category-btn:hover {
-  background: #e5e7eb;
-}
-
-.icon-selector {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
-  gap: 0.5rem;
-}
-
-.icon-btn {
-  padding: 0.5rem;
-  border: 1px solid #d1d5db;
-  background: white;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.icon-btn:hover {
-  border-color: #9ca3af;
-}
-
-.icon-btn.active {
-  border-color: #3b82f6;
-  background: #eff6ff;
-  color: #3b82f6;
-}
-
-.color-selector {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.color-btn {
-  padding: 0.5rem;
-  border: 1px solid #d1d5db;
-  background: white;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.color-btn:hover {
-  border-color: #9ca3af;
-}
-
-.color-btn.active {
-  border-color: #374151;
-}
-
-.color-dot {
-  display: block;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-}
-
-.color-dot.primary { background: #3b82f6; }
-.color-dot.secondary { background: #6b7280; }
-.color-dot.success { background: #10b981; }
-.color-dot.danger { background: #ef4444; }
-.color-dot.warning { background: #f59e0b; }
-.color-dot.info { background: #06b6d4; }
-.color-dot.dark { background: #1f2937; }
-.color-dot.light { background: #f9fafb; border: 1px solid #d1d5db; }
-
-.error-message {
-  padding: 0.75rem;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 0.5rem;
-  color: #dc2626;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  padding: 1.5rem;
-  border-top: 1px solid #e5e7eb;
-}
-
-.btn-secondary,
-.btn-primary {
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: none;
-}
-
-.btn-secondary {
-  background: #f3f4f6;
-  color: #374151;
-}
-
-.btn-secondary:hover {
-  background: #e5e7eb;
-}
-
-.btn-primary {
-  background: #3b82f6;
-  color: white;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: #2563eb;
-}
-
-.btn-primary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@media (max-width: 640px) {
-  .modal-content {
-    width: 95%;
-    margin: 1rem;
-  }
-  
-  .type-selector {
-    flex-direction: column;
-  }
-  
-  .category-input-group {
-    flex-direction: column;
-  }
-  
-  .add-category-btn {
-    width: 100%;
-  }
-}
-</style>
