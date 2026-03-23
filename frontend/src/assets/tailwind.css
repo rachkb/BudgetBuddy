@@ -727,7 +727,7 @@
   /* categories page */
   .categories-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
   }
 
@@ -762,6 +762,26 @@
 
   .category-icon.shopping {
     background-color: #8b5cf6;
+  }
+
+  .category-icon.primary {
+    background-color: #8169f1;
+  }
+
+  .category-icon.green {
+    background-color: #10b981;
+  }
+
+  .category-icon.red {
+    background-color: #ef4444;
+  }
+
+  .category-icon.yellow {
+    background-color: #f59e0b;
+  }
+
+  .category-icon.indigo {
+    background-color: #6366f1;
   }
 
   .category-info {

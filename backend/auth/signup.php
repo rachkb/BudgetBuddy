@@ -30,7 +30,12 @@ $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 $stmt = $pdo->prepare("INSERT INTO users (name, email, password, updated_at) VALUES (?, ?, ?, NOW())");
 try {
     $stmt->execute([$name, $email, $hashedPassword]);
-    echo json_encode(['success' => true]);
+    $userId = $pdo->lastInsertId();
+    echo json_encode(['success' => true, 'user' => [
+        'id' => $userId,
+        'name' => $name,
+        'email' => $email
+    ]]);
 } catch (PDOException $e) {
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }

@@ -56,7 +56,7 @@ export function useAuth() {
         localStorage.setItem("user", JSON.stringify(data.user));
         router.push("/dashboard");
       } else {
-        error.value = data.message || "Invalid credentials";
+        error.value = data.error || "Invalid credentials";
       }
     } catch (err) {
       error.value = "Connection failed. Check your local PHP server.";
@@ -92,7 +92,7 @@ export function useAuth() {
         localStorage.setItem("user", JSON.stringify(data.user));
         router.push("/dashboard");
       } else {
-        error.value = data.message || "Registration failed";
+        error.value = data.error || "Registration failed";
       }
     } catch (err) {
       error.value = "Connection failed. Check your local PHP server.";
