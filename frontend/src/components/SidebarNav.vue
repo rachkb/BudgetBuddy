@@ -91,9 +91,9 @@ const user = ref({ name: 'Demo User', email: 'demo@budgetbuddy.com' });
 
 const toggleSidebar = () => {
   isCollapsed.value = !isCollapsed.value;
-  // Save preference to localStorage
+  // save preference to localStorage
   localStorage.setItem('sidebar-collapsed', isCollapsed.value);
-  // Emit event for parent components
+  // emit event for parent components
   window.dispatchEvent(new CustomEvent('sidebar-toggle', {
     detail: { isCollapsed: isCollapsed.value }
   }));
@@ -108,7 +108,7 @@ const handleLogout = () => {
   router.push('/login');
 };
 
-// Load sidebar state from localStorage on mount
+// load sidebar state from localStorage on mount
 const savedState = localStorage.getItem('sidebar-collapsed');
 if (savedState !== null) {
   isCollapsed.value = savedState === 'true';
