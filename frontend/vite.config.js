@@ -10,4 +10,13 @@ export default defineConfig({
       "@": resolve(__dirname, "src"), //lets us use @
     },
   },
+  server: {
+    proxy: {
+      '/backend': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false,
+      }
+    }
+  }
 });

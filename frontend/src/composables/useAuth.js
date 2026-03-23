@@ -41,7 +41,8 @@ export function useAuth() {
     isLoading.value = true;
 
     try {
-      const res = await fetch("http://localhost:8000/auth/login", {
+      const res = await fetch("/backend/auth/login.php", {
+>>>>>>> origin/tailwind-fix
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -76,7 +77,8 @@ export function useAuth() {
     isLoading.value = true;
 
     try {
-      const res = await fetch("http://localhost:8000/auth/signup", {
+      const res = await fetch("/backend/auth/signup.php", {
+>>>>>>> origin/tailwind-fix
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

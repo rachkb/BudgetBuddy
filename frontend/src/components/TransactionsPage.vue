@@ -1,24 +1,24 @@
 <template>
   <MainLayout>
-    <div class="page-container">
-      <div class="page-header">
-        <h1 class="page-title">Transactions</h1>
-        <button class="primary-btn" @click="openTransactionModal">
+    <div class="p-8 max-w-6xl mx-auto">
+      <div class="flex justify-between items-center mb-8">
+        <h1 class="text-2xl font-bold text-gray-900">Transactions</h1>
+        <button @click="openTransactionModal" class="flex items-center gap-2 px-6 py-3 bg-purple-500 text-white rounded-md hover:bg-purple-600 transition-colors">
           <i class="bi bi-plus-circle"></i>
           Add Transaction
         </button>
       </div>
       
-      <div class="transactions-content">
-        <div class="filters-section">
-          <div class="filter-group">
+      <div class="flex flex-col gap-8">
+        <div class="bg-white p-6 rounded-xl shadow-sm mb-8">
+          <div class="flex gap-4 items-center">
             <input 
               type="text" 
               placeholder="Search transactions..." 
-              class="search-input"
+              class="flex-1 px-4 py-2 border border-gray-300 rounded-md text-sm"
               v-model="searchQuery"
             />
-            <select class="filter-select" v-model="selectedCategory">
+            <select class="px-4 py-2 border border-gray-300 rounded-md text-sm min-w-40" v-model="selectedCategory">
               <option value="">All Categories</option>
               <option 
                 v-for="category in categories" 
@@ -28,7 +28,7 @@
                 {{ category.name }}
               </option>
             </select>
-            <select class="filter-select" v-model="selectedType">
+            <select class="px-4 py-2 border border-gray-300 rounded-md text-sm min-w-40" v-model="selectedType">
               <option value="">All Types</option>
               <option value="expense">Expenses</option>
               <option value="income">Income</option>
@@ -36,36 +36,36 @@
           </div>
         </div>
 
-        <div class="transactions-table">
-          <div v-if="isLoading" class="loading-state">
-            <i class="bi bi-arrow-repeat spin"></i>
-            <p>Loading transactions...</p>
+<div class="bg-white rounded-xl shadow-sm min-h-96">
+          <div v-if="isLoading" class="flex flex-col items-center justify-center h-full text-gray-400 text-center py-16">
+            <i class="bi bi-arrow-repeat text-5xl mb-4 animate-spin"></i>
+            <p class="font-semibold">Loading transactions...</p>
           </div>
           
-          <div v-else-if="filteredTransactions.length === 0" class="empty-state">
-            <i class="bi bi-arrow-left-right"></i>
-            <h3>No transactions found</h3>
-            <p>{{ searchQuery || selectedCategory || selectedType ? 'Try adjusting your filters' : 'Start adding transactions to see them here' }}</p>
+          <div v-else-if="filteredTransactions.length === 0" class="flex flex-col items-center justify-center h-full text-gray-400 text-center py-16">
+            <i class="bi bi-arrow-left-right text-5xl mb-4 opacity-50"></i>
+            <h3 class="font-semibold mb-2">No transactions found</h3>
+            <p class="text-sm opacity-80">{{ searchQuery || selectedCategory || selectedType ? 'Try adjusting your filters' : 'Start adding transactions to see them here' }}</p>
           </div>
           
-          <div v-else class="transactions-list">
+          <div v-else class="divide-y divide-gray-200">
             <div 
               v-for="transaction in filteredTransactions" 
               :key="transaction.id"
-              class="transaction-item"
+              class="p-4 hover:bg-gray-50 transition-colors flex items-center gap-4"
             >
-              <div class="transaction-icon" :class="transaction.type">
+              <div class="w-10 h-10 rounded-lg flex items-center justify-center" :class="transaction.type === 'income' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'">
                 <i :class="getTransactionIcon(transaction.category_name || transaction.category)"></i>
               </div>
-              <div class="transaction-details">
-                <h4>{{ transaction.description }}</h4>
-                <p>{{ transaction.category_name || 'Uncategorized' }} • {{ formatDate(transaction.date) }}</p>
-                <p v-if="transaction.notes" class="transaction-notes">{{ transaction.notes }}</p>
+              <div class="flex-1">
+                <h4 class="font-semibold text-gray-900">{{ transaction.description }}</h4>
+                <p class="text-sm text-gray-600">{{ transaction.category_name || 'Uncategorized' }} • {{ formatDate(transaction.date) }}</p>
+                <p v-if="transaction.notes" class="text-sm text-gray-500 mt-1">{{ transaction.notes }}</p>
               </div>
-              <div class="transaction-amount" :class="transaction.type">
+              <div class="font-semibold" :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'">
                 {{ transaction.type === 'income' ? '+' : '-' }}₱{{ transaction.amount.toLocaleString() }}
               </div>
-              <button class="delete-btn" @click="deleteTransaction(transaction.id)">
+              <button @click="deleteTransaction(transaction.id)" class="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors">
                 <i class="bi bi-trash"></i>
               </button>
             </div>
