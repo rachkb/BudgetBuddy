@@ -1,6 +1,6 @@
 <template>
   <SidebarNav />
-  <div class="main-content" :class="{ 'content-collapsed': isCollapsed }">
+  <div class="flex-1 ml-72 transition-all duration-300 min-h-screen bg-gray-50" :class="{ 'ml-20': isCollapsed }">
     <slot></slot>
   </div>
 </template>
