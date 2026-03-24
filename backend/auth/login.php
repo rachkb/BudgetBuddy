@@ -29,9 +29,11 @@ if ($user && password_verify($password, $user['password'])) {
         'user' => [
             'id' => $user['id'],
             'name' => $user['name'],
-            'email' => $user['email']
+            'email' => $user['email'],
+            'phone' => $user['phone'] ?? '',
+            'currency' => $user['currency'] ?? 'PHP'
         ]
     ]);
 } else {
-    echo json_encode(['success' => false]);
+    echo json_encode(['success' => false, 'message' => 'Invalid email or password']);
 }

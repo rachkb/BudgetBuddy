@@ -89,8 +89,15 @@ const router = useRouter();
 const savedState = localStorage.getItem('sidebar-collapsed');
 const isCollapsed = ref(savedState === 'true');
 
-// sample data
-const user = ref({ name: 'Demo User', email: 'demo@budgetbuddy.com' });
+// load user from localStorage
+const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+const user = ref(storedUser);
+
+// listen for profile updates
+window.addEventListener('user-updated', () => {
+  const updated = JSON.parse(localStorage.getItem('user') || '{}');
+  user.value = updated;
+});
 
 const toggleSidebar = () => {
   isCollapsed.value = !isCollapsed.value;

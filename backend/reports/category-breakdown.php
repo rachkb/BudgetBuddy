@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { exit; }
 require __DIR__ . "/../includes/db.php";
 
 $data = json_decode(file_get_contents('php://input'), true);
-$userId = $_SESSION['user_id'] ?? ($data['user_id'] ?? null);
+$userId = $data['user_id'] ?? null;
 
 if (!$userId) {
     echo json_encode(['success' => false, 'error' => 'Not authenticated']);
