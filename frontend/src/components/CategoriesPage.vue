@@ -1,6 +1,6 @@
 <template>
   <MainLayout>
-    <div class="page-container">
+<div class="page-container">
       <div class="page-header">
         <h1 class="page-title">Categories</h1>
         <button @click="openAddModal" class="primary-btn">
@@ -11,7 +11,7 @@
 
       <p v-if="error" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6 text-sm">{{ error }}</p>
       
-      <div v-if="isLoading && categories.length === 0" class="text-center p-12 text-gray-500">
+<div v-if="isLoading && categories.length === 0" class="text-center p-12 text-gray-500">
         <i class="bi bi-arrow-repeat text-2xl mb-4 block animate-spin"></i>
         <p>Loading categories...</p>
       </div>
