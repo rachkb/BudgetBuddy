@@ -1,47 +1,47 @@
 <template>
-  <div v-if="show" class="modal-overlay" @click.self="$emit('close')">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>{{ isEditing ? 'Edit Category' : 'Add Category' }}</h2>
-        <button @click="$emit('close')" class="close-btn">
+  <div v-if="show" class="fixed inset-0 flex items-center justify-center z-[1000] p-4" style="background: rgba(0, 0, 0, 0.5);" @click.self="$emit('close')">
+    <div class="bg-white rounded-xl max-w-[500px] w-full max-h-[90vh] overflow-y-auto shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1)]">
+      <div class="flex justify-between items-center p-6 border-b border-gray-200">
+        <h2 class="text-xl font-semibold text-gray-900">{{ isEditing ? 'Edit Category' : 'Add Category' }}</h2>
+        <button @click="$emit('close')" class="bg-none border-none text-xl text-gray-500 cursor-pointer p-1 hover:text-gray-900 transition-colors duration-200">
           <i class="bi bi-x-lg"></i>
         </button>
       </div>
 
-      <form @submit.prevent="$emit('submit')" class="modal-body">
-        <div class="form-group">
-          <label for="category-name">Category Name *</label>
+      <form @submit.prevent="$emit('submit')" class="p-6">
+        <div class="mb-6">
+          <label for="category-name" class="block text-sm font-medium text-gray-700 mb-2">Category Name *</label>
           <input
             id="category-name"
             v-model="form.name"
             type="text"
             placeholder="e.g., Food, Transport"
             required
-            class="form-input"
+            class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm transition-all duration-200 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-10"
           />
         </div>
 
-        <div class="form-group">
-          <label for="category-icon">Icon</label>
-          <select id="category-icon" v-model="form.icon" class="form-input">
+        <div class="mb-6">
+          <label for="category-icon" class="block text-sm font-medium text-gray-700 mb-2">Icon</label>
+          <select id="category-icon" v-model="form.icon" class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm transition-all duration-200 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-10">
             <option v-for="icon in iconOptions" :key="icon.value" :value="icon.value">
               {{ icon.label }}
             </option>
           </select>
-          <div class="icon-preview">
+          <div class="mt-2 flex items-center justify-center p-4 bg-gray-50 rounded-lg">
             <i :class="form.icon" class="text-2xl"></i>
           </div>
         </div>
 
-        <div class="form-group">
-          <label>Color</label>
-          <div class="color-grid">
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Color</label>
+          <div class="grid grid-cols-4 gap-3">
             <button
               v-for="color in colorOptions"
               :key="color.value"
               type="button"
               @click="form.color = color.value"
-              :class="['color-option', color.class, { 'selected': form.color === color.value }]"
+              :class="['w-full aspect-square rounded-lg border-2 border-transparent cursor-pointer transition-all duration-200 flex items-center justify-center text-xl hover:scale-105', color.class, { 'border-gray-900 shadow-[0_0_0_2px_white,0_0_0_4px_gray-900]': form.color === color.value }]"
               :title="color.label"
             >
               <i v-if="form.color === color.value" class="bi bi-check text-white"></i>
@@ -49,13 +49,13 @@
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="budget-limit">
+        <div class="mb-6">
+          <label for="budget-limit" class="block text-sm font-medium text-gray-700 mb-2">
             Budget Limit (Optional)
-            <span class="text-xs text-gray-500">Leave empty to track without budgeting</span>
+            <span class="text-xs text-gray-500 ml-1">Leave empty to track without budgeting</span>
           </label>
-          <div class="input-with-prefix">
-            <span class="prefix">₱</span>
+          <div class="relative">
+            <span class="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">₱</span>
             <input
               id="budget-limit"
               v-model.number="form.budget_limit"
@@ -63,18 +63,18 @@
               step="0.01"
               min="0"
               placeholder="0.00"
-              class="form-input with-prefix"
+              class="w-full pl-8 pr-3.5 py-2.5 border border-gray-300 rounded-lg text-sm transition-all duration-200 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-10"
             />
           </div>
         </div>
 
-        <p v-if="error" class="error-message">{{ error }}</p>
+        <p v-if="error" class="text-red-500 text-sm mb-4 p-3 bg-red-50 rounded-lg border border-red-200">{{ error }}</p>
 
-        <div class="modal-footer">
-          <button type="button" @click="$emit('close')" class="secondary-btn">
+        <div class="flex gap-3 justify-end pt-4 border-t border-gray-200">
+          <button type="button" @click="$emit('close')" class="px-5 py-2.5 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 border-none bg-gray-100 text-gray-700 hover:bg-gray-200">
             Cancel
           </button>
-          <button type="submit" :disabled="isLoading" class="primary-btn">
+          <button type="submit" :disabled="isLoading" class="px-5 py-2.5 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 border-none bg-gradient-to-r from-indigo-500 to-indigo-400 text-white hover:translate-y-[-1px] hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed">
             {{ isLoading ? 'Saving...' : (isEditing ? 'Update' : 'Add') }}
           </button>
         </div>
@@ -97,195 +97,3 @@ defineProps({
 defineEmits(['close', 'submit']);
 </script>
 
-<style scoped>
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
-}
-
-.modal-content {
-  background: white;
-  border-radius: 1rem;
-  max-width: 500px;
-  width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.modal-header h2 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #1f2937;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 1.25rem;
-  color: #6b7280;
-  cursor: pointer;
-  padding: 0.25rem;
-  transition: color 0.2s;
-}
-
-.close-btn:hover {
-  color: #1f2937;
-}
-
-.modal-body {
-  padding: 1.5rem;
-}
-
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-.form-group label {
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #374151;
-  margin-bottom: 0.5rem;
-}
-
-.form-input {
-  width: 100%;
-  padding: 0.625rem 0.875rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  transition: all 0.2s;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: #8169f1;
-  box-shadow: 0 0 0 3px rgba(129, 105, 241, 0.1);
-}
-
-.icon-preview {
-  margin-top: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  background: #f9fafb;
-  border-radius: 0.5rem;
-}
-
-.color-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.75rem;
-}
-
-.color-option {
-  width: 100%;
-  aspect-ratio: 1;
-  border-radius: 0.5rem;
-  border: 2px solid transparent;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-}
-
-.color-option:hover {
-  transform: scale(1.05);
-}
-
-.color-option.selected {
-  border-color: #1f2937;
-  box-shadow: 0 0 0 2px white, 0 0 0 4px #1f2937;
-}
-
-.input-with-prefix {
-  position: relative;
-}
-
-.prefix {
-  position: absolute;
-  left: 0.875rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #6b7280;
-  font-weight: 500;
-}
-
-.form-input.with-prefix {
-  padding-left: 2rem;
-}
-
-.error-message {
-  color: #ef4444;
-  font-size: 0.875rem;
-  margin-bottom: 1rem;
-  padding: 0.75rem;
-  background: #fef2f2;
-  border-radius: 0.5rem;
-  border: 1px solid #fecaca;
-}
-
-.modal-footer {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: flex-end;
-  padding-top: 1rem;
-  border-top: 1px solid #e5e7eb;
-}
-
-.primary-btn,
-.secondary-btn {
-  padding: 0.625rem 1.25rem;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: none;
-}
-
-.primary-btn {
-  background: linear-gradient(135deg, #8169f1 0%, #9b87f5 100%);
-  color: white;
-}
-
-.primary-btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(129, 105, 241, 0.4);
-}
-
-.primary-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.secondary-btn {
-  background: #f3f4f6;
-  color: #374151;
-}
-
-.secondary-btn:hover {
-  background: #e5e7eb;
-}
-</style>

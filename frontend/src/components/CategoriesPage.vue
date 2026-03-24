@@ -9,20 +9,20 @@
         </button>
       </div>
 
-      <p v-if="error" class="error-banner">{{ error }}</p>
+      <p v-if="error" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6 text-sm">{{ error }}</p>
       
-      <div v-if="isLoading && categories.length === 0" class="loading-state">
-        <i class="bi bi-arrow-repeat spin"></i>
+      <div v-if="isLoading && categories.length === 0" class="text-center p-12 text-gray-500">
+        <i class="bi bi-arrow-repeat text-2xl mb-4 block animate-spin"></i>
         <p>Loading categories...</p>
       </div>
 
-      <div v-else-if="categories.length === 0" class="empty-state">
-        <i class="bi bi-folder-x"></i>
-        <p>No categories yet. Click "Add Category" to get started.</p>
+      <div v-else-if="categories.length === 0" class="text-center p-12 text-gray-500">
+        <i class="bi bi-folder-x text-4xl text-gray-400 mb-3 block"></i>
+        <p class="text-sm">No categories yet. Click "Add Category" to get started.</p>
       </div>
       
       <div v-else class="categories-grid">
-        <div v-for="category in categories" :key="category.id" class="category-card">
+        <div v-for="category in categories" :key="category.id" class="category-card relative p-6 group">
           <div :class="['category-icon', category.color]">
             <i :class="category.icon"></i>
           </div>
@@ -44,11 +44,11 @@
               ></div>
             </div>
           </div>
-          <div class="category-actions">
-            <button @click="openEditModal(category)" class="action-btn edit" title="Edit">
+          <div class="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <button @click="openEditModal(category)" class="w-8 h-8 rounded-md border-none cursor-pointer flex items-center justify-center text-sm bg-blue-50 text-blue-600 hover:bg-blue-100 transition-all duration-200" title="Edit">
               <i class="bi bi-pencil"></i>
             </button>
-            <button @click="deleteCategory(category.id)" class="action-btn delete" title="Delete">
+            <button @click="deleteCategory(category.id)" class="w-8 h-8 rounded-md border-none cursor-pointer flex items-center justify-center text-sm bg-red-50 text-red-600 hover:bg-red-100 transition-all duration-200" title="Delete">
               <i class="bi bi-trash"></i>
             </button>
           </div>
@@ -98,102 +98,3 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
-.error-banner {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #dc2626;
-  padding: 0.75rem 1rem;
-  border-radius: 0.5rem;
-  margin-bottom: 1.5rem;
-  font-size: 0.875rem;
-}
-
-.loading-state {
-  text-align: center;
-  padding: 3rem;
-  color: #6b7280;
-}
-
-.loading-state i {
-  font-size: 2rem;
-  margin-bottom: 1rem;
-  display: block;
-}
-
-.spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.empty-state {
-  text-align: center;
-  padding: 3rem;
-  color: #6b7280;
-}
-
-.empty-state i {
-  font-size: 2.5rem;
-  color: #9ca3af;
-  margin-bottom: 0.75rem;
-  display: block;
-}
-
-.empty-state p {
-  font-size: 0.875rem;
-}
-
-.category-card {
-  position: relative;
-  padding: 1.5rem;
-}
-
-.category-actions {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  display: flex;
-  gap: 0.5rem;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.category-card:hover .category-actions {
-  opacity: 1;
-}
-
-.action-btn {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 0.375rem;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-  font-size: 0.875rem;
-}
-
-.action-btn.edit {
-  background: #eff6ff;
-  color: #2563eb;
-}
-
-.action-btn.edit:hover {
-  background: #dbeafe;
-}
-
-.action-btn.delete {
-  background: #fef2f2;
-  color: #dc2626;
-}
-
-.action-btn.delete:hover {
-  background: #fee2e2;
-}
-</style>
