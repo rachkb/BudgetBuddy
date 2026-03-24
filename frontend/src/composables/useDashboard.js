@@ -1,4 +1,4 @@
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import Chart from 'chart.js/auto';
 
@@ -6,95 +6,113 @@ export function useDashboard() {
   const router = useRouter();
   const spendingChart = ref(null);
   const budgetChart = ref(null);
+  let spendingChartInstance = null;
+  let budgetChartInstance = null;
 
-  // sample
-  const user = ref({ name: 'Demo User' }); 
-  const expenses = ref([]);
-  const income = ref([]);
-  const budgets = ref([]);
+  const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+  const user = ref(storedUser);
+  const transactions = ref([]);
+  const categories = ref([]);
 
-  // sample data only
-  const sampleExpenses = [
-    { id: 1, description: 'Grocery Shopping', category: 'Food', amount: 150, date: '2024-01-15', type: 'expense' },
-    { id: 2, description: 'Gas Station', category: 'Transport', amount: 60, date: '2024-01-14', type: 'expense' },
-    { id: 3, description: 'Netflix Subscription', category: 'Entertainment', amount: 15, date: '2024-01-13', type: 'expense' }
-  ];
-
-  const sampleIncome = [
-    { id: 1, description: 'Monthly Salary', category: 'Salary', amount: 3000, date: '2024-01-01', type: 'income' },
-    { id: 2, description: 'Freelance Project', category: 'Freelance', amount: 500, date: '2024-01-10', type: 'income' }
-  ];
-
-  const sampleBudgets = [
-    { category: 'Food', amount: 500, spent: 350 },
-    { category: 'Transport', amount: 300, spent: 200 },
-    { category: 'Shopping', amount: 400, spent: 150 },
-    { category: 'Entertainment', amount: 200, spent: 50 },
-    { category: 'Bills', amount: 800, spent: 650 }
-  ];
+  const getUser = () => {
+    try { return JSON.parse(localStorage.getItem('user')); }
+    catch { return null; }
+  };
 
   // computed properties
-  const totalBalance = computed(() => {
-    const totalIncome = income.value.reduce((sum, item) => sum + item.amount, 0);
-    const totalExpenses = expenses.value.reduce((sum, item) => sum + item.amount, 0);
-    const balance = totalIncome - totalExpenses;
-    console.log('totalBalance:', balance, 'income:', totalIncome, 'expenses:', totalExpenses);
-    return balance;
+  const incomeTransactions = computed(() =>
+    transactions.value.filter(t => t.type === 'income')
+  );
+
+  const expenseTransactions = computed(() =>
+    transactions.value.filter(t => t.type === 'expense')
+  );
+
+  const totalIncome = computed(() =>
+    incomeTransactions.value.reduce((sum, t) => sum + Number(t.amount), 0)
+  );
+
+  const totalExpenses = computed(() =>
+    expenseTransactions.value.reduce((sum, t) => sum + Number(t.amount), 0)
+  );
+
+  const totalBalance = computed(() => totalIncome.value - totalExpenses.value);
+
+  const savings = computed(() => totalBalance.value > 0 ? totalBalance.value : 0);
+
+  const hasTransactionData = computed(() => transactions.value.length > 0);
+
+  const hasBudgetData = computed(() =>
+    categories.value.some(c => c.type === 'expense' && c.budget_limit && Number(c.budget_limit) > 0)
+  );
+
+  const selectedBudgetCategory = ref(null);
+
+  const budgetItems = computed(() => {
+    const colorMap = {
+      primary: '#8169f1', green: '#10b981', red: '#ef4444',
+      yellow: '#f59e0b', blue: '#3b82f6', indigo: '#6366f1',
+      pink: '#ec4899', orange: '#f97316', teal: '#14b8a6', dark: '#1f2937'
+    };
+    const now = new Date();
+    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+    return categories.value
+      .filter(c => c.type === 'expense' && c.budget_limit && Number(c.budget_limit) > 0)
+      .map(cat => {
+        const spent = transactions.value
+          .filter(t => t.type === 'expense' && t.category_id == cat.id && t.transaction_date && t.transaction_date.startsWith(currentMonth))
+          .reduce((sum, t) => sum + Number(t.amount), 0);
+        const budget = Number(cat.budget_limit);
+        const pct = budget > 0 ? Math.min((spent / budget) * 100, 100) : 0;
+        return {
+          id: cat.id,
+          name: cat.name,
+          icon: cat.icon || 'bi-tag',
+          budget,
+          spent,
+          remaining: Math.max(budget - spent, 0),
+          pct: Math.round(pct),
+          over: spent > budget,
+          color: colorMap[cat.color] || cat.color || '#8169f1'
+        };
+      });
   });
 
-  const totalIncome = computed(() => {
-    const incomeTotal = income.value.reduce((sum, item) => sum + item.amount, 0);
-    console.log('totalIncome:', incomeTotal);
-    return incomeTotal;
-  });
+  const selectBudgetCategory = (catId) => {
+    if (selectedBudgetCategory.value && selectedBudgetCategory.value.id === catId) {
+      selectedBudgetCategory.value = null;
+      return;
+    }
+    const item = budgetItems.value.find(b => b.id === catId);
+    if (!item) return;
+    const now = new Date();
+    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const txns = transactions.value
+      .filter(t => t.type === 'expense' && t.category_id == catId && t.transaction_date && t.transaction_date.startsWith(currentMonth))
+      .map(t => ({ id: t.id, description: t.description, amount: Number(t.amount), date: t.transaction_date }))
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
+    selectedBudgetCategory.value = { ...item, transactions: txns };
+  };
 
-  const totalExpenses = computed(() => {
-    const expenseTotal = expenses.value.reduce((sum, item) => sum + item.amount, 0);
-    console.log('totalExpenses:', expenseTotal);
-    return expenseTotal;
-  });
+  const closeBudgetDetail = () => {
+    selectedBudgetCategory.value = null;
+  };
 
-  const savings = computed(() => {
-    const savingsAmount = totalIncome.value * 0.2; // 20% savings rate
-    console.log('savings:', savingsAmount);
-    return savingsAmount;
-  });
-
-  const hasTransactionData = computed(() => {
-    const hasData = expenses.value.length > 0 || income.value.length > 0;
-    console.log('hasTransactionData:', hasData, 'expenses:', expenses.value.length, 'income:', income.value.length);
-    return hasData;
-  });
-
-  const hasBudgetData = computed(() => {
-    const hasData = budgets.value.length > 0;
-    console.log('hasBudgetData:', hasData, 'budgets:', budgets.value.length);
-    return hasData;
-  });
-
-  const recentTransactions = computed(() => {
-    const allTransactions = [
-      ...income.value.map(item => ({ 
-        ...item, 
-        type: 'income',
-        description: item.description,
-        category: item.category,
-        amount: item.amount,
-        date: item.date
-      })),
-      ...expenses.value.map(item => ({ 
-        ...item, 
-        type: 'expense',
-        description: item.description,
-        category: item.category,
-        amount: item.amount,
-        date: item.date
+  const recentTransactions = computed(() =>
+    [...transactions.value]
+      .sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date))
+      .slice(0, 5)
+      .map(t => ({
+        id: t.id,
+        type: t.type,
+        description: t.description,
+        category: t.category_name || 'Uncategorized',
+        category_icon: t.category_icon,
+        amount: Number(t.amount),
+        date: t.transaction_date
       }))
-    ];
-    return allTransactions
-      .sort((a, b) => new Date(b.date) - new Date(a.date))
-      .slice(0, 5);
-  });
+  );
 
   // methods
   const logout = () => {
@@ -102,118 +120,136 @@ export function useDashboard() {
     router.push('/login');
   };
 
-  const getTransactionIcon = (category) => {
-    const icons = {
-      'Food': 'bi bi-cup-hot',
-      'Transport': 'bi bi-car-front',
-      'Shopping': 'bi bi-bag',
-      'Entertainment': 'bi bi-controller',
-      'Bills': 'bi bi-file-text',
-      'Salary': 'bi bi-briefcase',
-      'Freelance': 'bi bi-laptop',
-      'Investment': 'bi bi-graph-up-arrow'
+  const getTransactionIcon = (category, iconClass) => {
+    if (iconClass) return iconClass;
+    return 'bi bi-circle';
+  };
+
+  const getMonthlyData = () => {
+    const now = new Date();
+    const months = [];
+    const incomeByMonth = {};
+    const expenseByMonth = {};
+
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      const label = d.toLocaleString('default', { month: 'short' });
+      months.push({ key, label });
+      incomeByMonth[key] = 0;
+      expenseByMonth[key] = 0;
+    }
+
+    transactions.value.forEach(t => {
+      const date = new Date(t.transaction_date);
+      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      if (t.type === 'income' && incomeByMonth[key] !== undefined) {
+        incomeByMonth[key] += Number(t.amount);
+      } else if (t.type === 'expense' && expenseByMonth[key] !== undefined) {
+        expenseByMonth[key] += Number(t.amount);
+      }
+    });
+
+    return {
+      labels: months.map(m => m.label),
+      incomeData: months.map(m => incomeByMonth[m.key]),
+      expenseData: months.map(m => expenseByMonth[m.key])
     };
-    return icons[category] || 'bi bi-circle';
   };
 
   const initCharts = () => {
-    // spending overview chart
+    if (spendingChartInstance) { spendingChartInstance.destroy(); spendingChartInstance = null; }
+
     if (hasTransactionData.value && spendingChart.value) {
+      const { labels, incomeData, expenseData } = getMonthlyData();
       const ctx = spendingChart.value.getContext('2d');
-      new Chart(ctx, {
+      spendingChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
-          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+          labels,
           datasets: [{
             label: 'Income',
-            data: [2000, 2500, 2200, 3000, 2800, 3200],
+            data: incomeData,
             borderColor: '#10b981',
             backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            fill: true,
             tension: 0.4
           }, {
             label: 'Expenses',
-            data: [1500, 1800, 1600, 2000, 1900, 2100],
+            data: expenseData,
             borderColor: '#ef4444',
             backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            fill: true,
             tension: 0.4
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'bottom'
-            }
-          }
-        }
-      });
-    }
-
-    // budget progress chart
-    if (hasBudgetData.value && budgetChart.value) {
-      const ctx = budgetChart.value.getContext('2d');
-      new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: ['Food', 'Transport', 'Shopping', 'Entertainment', 'Bills'],
-          datasets: [{
-            data: [500, 300, 400, 200, 800],
-            backgroundColor: [
-              '#f59e0b',
-              '#3b82f6',
-              '#8b5cf6',
-              '#ec4899',
-              '#06b6d4'
-            ]
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'bottom'
-            }
+          plugins: { legend: { position: 'bottom' } },
+          scales: {
+            y: { beginAtZero: true, ticks: { callback: v => '₱' + v.toLocaleString() } }
           }
         }
       });
     }
   };
 
-  const loadDashboardData = () => {
-    // load sample data
-    // in production, this would come from your API
-    console.log('Loading dashboard data...');
-    expenses.value = [...sampleExpenses];
-    income.value = [...sampleIncome];
-    budgets.value = [...sampleBudgets];
-    
-    // initialize charts after data is loaded
-    setTimeout(() => {
-      initCharts();
-    }, 100);
+  const loadDashboardData = async () => {
+    const u = getUser();
+    if (!u) return;
+
+    try {
+      const [txRes, catRes] = await Promise.all([
+        fetch('/backend/transactions/list.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: u.id })
+        }),
+        fetch('/backend/categories/list.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: u.id })
+        })
+      ]);
+
+      const txText = await txRes.text();
+      const catText = await catRes.text();
+
+      if (txText) {
+        try {
+          const txData = JSON.parse(txText);
+          if (txData.success) transactions.value = txData.data || [];
+        } catch (e) { console.error('Invalid JSON from transactions:', e); }
+      }
+
+      if (catText) {
+        try {
+          const catData = JSON.parse(catText);
+          if (catData.success) categories.value = catData.data || [];
+        } catch (e) { console.error('Invalid JSON from categories:', e); }
+      }
+    } catch (err) {
+      console.error('Error loading dashboard data:', err);
+    }
+
+    setTimeout(() => { initCharts(); }, 100);
   };
 
   return {
-    // refs
     spendingChart,
-    budgetChart,
     user,
-    expenses,
-    income,
-    budgets,
-    
-    // computed
     totalBalance,
     totalIncome,
     totalExpenses,
     savings,
     hasTransactionData,
     hasBudgetData,
+    budgetItems,
+    selectedBudgetCategory,
+    selectBudgetCategory,
+    closeBudgetDetail,
     recentTransactions,
-    
-    // methods
     logout,
     getTransactionIcon,
     initCharts,

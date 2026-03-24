@@ -1,6 +1,6 @@
 <template>
   <SidebarNav />
-  <div class="flex-1 ml-72 transition-all duration-300 min-h-screen bg-gray-50" :class="{ 'ml-20': isCollapsed }">
+  <div class="min-h-screen bg-gray-50 transition-all duration-300" :style="{ 'margin-left': isCollapsed ? '5rem' : '18rem' }">
     <slot></slot>
   </div>
 </template>
@@ -11,16 +11,16 @@ import SidebarNav from './SidebarNav.vue';
 
 const isCollapsed = ref(false);
 
-// state changes
-onMounted(() => {
-  const savedState = localStorage.getItem('sidebar-collapsed');
-  if (savedState !== null) {
-    isCollapsed.value = savedState === 'true';
-  }
-  
-  // sidebar toggle events
-  window.addEventListener('sidebar-toggle', (event) => {
-    isCollapsed.value = event.detail.isCollapsed;
-  });
+// load sidebar state from localStorage on mount
+const savedState = localStorage.getItem('sidebar-collapsed');
+if (savedState !== null) {
+  isCollapsed.value = savedState === 'true';
+}
+
+// listen for sidebar toggle events
+window.addEventListener('sidebar-toggle', (event) => {
+  isCollapsed.value = event.detail.isCollapsed;
+  // also update localStorage to keep in sync
+  localStorage.setItem('sidebar-collapsed', isCollapsed.value);
 });
 </script>

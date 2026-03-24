@@ -1,5 +1,5 @@
 <template>
-  <div class="w-72 h-screen bg-gradient-to-b from-purple-500 to-purple-600 text-white fixed left-0 top-0 flex flex-col transition-all duration-300 shadow-lg z-50" :class="{ 'w-20': isCollapsed }">
+  <div class="h-screen bg-gradient-to-b from-purple-500 to-purple-600 text-white fixed left-0 top-0 flex flex-col transition-all duration-300 shadow-lg z-50" :style="{ width: isCollapsed ? '5rem' : '18rem' }">
   
     <div class="p-6 border-b border-white/10 flex items-center justify-between">
       <div class="flex items-center gap-3" v-if="!isCollapsed">
@@ -84,7 +84,10 @@ import { useRoute, useRouter } from 'vue-router';
 
 const route = useRoute();
 const router = useRouter();
-const isCollapsed = ref(false);
+
+// load sidebar state from localStorage on mount
+const savedState = localStorage.getItem('sidebar-collapsed');
+const isCollapsed = ref(savedState === 'true');
 
 // sample data
 const user = ref({ name: 'Demo User', email: 'demo@budgetbuddy.com' });
@@ -107,10 +110,4 @@ const handleLogout = () => {
   localStorage.removeItem('user');
   router.push('/login');
 };
-
-// load sidebar state from localStorage on mount
-const savedState = localStorage.getItem('sidebar-collapsed');
-if (savedState !== null) {
-  isCollapsed.value = savedState === 'true';
-}
 </script>
