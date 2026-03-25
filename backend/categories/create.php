@@ -20,7 +20,7 @@ $type = $data['type'] ?? 'expense';
 $name = trim($data['name'] ?? '');
 $icon = $data['icon'] ?? 'bi-tag';
 $color = $data['color'] ?? 'primary';
-$budgetLimit = $data['budget_limit'] ?? null;
+$budgetLimit = (!empty($data['budget_limit']) && is_numeric($data['budget_limit'])) ? $data['budget_limit'] : null;
 
 if (!$name) {
     echo json_encode(['success' => false, 'error' => 'Category name is required']);
